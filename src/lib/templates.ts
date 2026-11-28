@@ -30,7 +30,13 @@ export function readLocalTemplates(): PrintTemplate[] {
 
 /** Writes the full template list to localStorage. */
 export function writeLocalTemplates(templates: PrintTemplate[]) {
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(templates))
+  try {
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(templates))
+  } catch {
+    throw new Error(
+      "This template is too large to save in this browser. Use a smaller background image or configure Supabase."
+    )
+  }
 }
 
 /** Upserts one template in localStorage and returns the list. */
@@ -80,7 +86,11 @@ export async function listTemplates(): Promise<PrintTemplate[]> {
   }
 
   const remote = (data as StoredRow[]).map(fromRow)
-  writeLocalTemplates(remote)
+  try {
+    writeLocalTemplates(remote)
+  } catch {
+    /* quota — still return the remote list */
+  }
   return remote
 }
 
