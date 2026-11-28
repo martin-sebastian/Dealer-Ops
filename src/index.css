@@ -141,6 +141,17 @@
     height: auto !important;
   }
 
+  [data-slot="sidebar"],
+  [data-slot="dialog-overlay"],
+  [data-slot="dialog-content"] {
+    display: none !important;
+  }
+
+  [data-slot="sidebar-inset"] {
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
   .print-page {
     break-after: page;
     box-shadow: none !important;

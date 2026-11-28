@@ -1,9 +1,4 @@
-import {
-  BotIcon,
-  PrinterIcon,
-  StoreIcon,
-  WrenchIcon,
-} from "lucide-react"
+import { BotIcon, PrinterIcon, StoreIcon, WrenchIcon } from "lucide-react"
 import { Link, Outlet, useLocation } from "react-router-dom"
 
 import {
@@ -74,7 +69,7 @@ export function AppShell() {
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
-      <SidebarInset className="min-h-svh min-w-0 overflow-hidden">
+      <SidebarInset className="min-h-svh min-w-0 overflow-hidden print:m-0 print:overflow-visible">
         <header className="flex h-12 items-center gap-2 border-b px-3 print:hidden">
           <SidebarTrigger />
           <p className="text-sm font-medium">

@@ -21,9 +21,20 @@ export function getSupabase() {
   return client
 }
 
+/** Reads a File as a data URL so local-only images survive a reload. */
+function fileToDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result ?? ""))
+    reader.onerror = () =>
+      reject(reader.error ?? new Error("Could not read image"))
+    reader.readAsDataURL(file)
+  })
+}
+
 /**
  * Uploads a background image to the print-images bucket and returns its
- * public CDN URL. Falls back to a local object URL when Supabase is unset.
+ * public CDN URL. Falls back to a data URL when Supabase is unset.
  */
 export async function uploadPrintImage(file: File) {
   const supabase = getSupabase()
@@ -31,7 +42,7 @@ export async function uploadPrintImage(file: File) {
   const path = `${crypto.randomUUID()}.${ext}`
 
   if (!supabase) {
-    return URL.createObjectURL(file)
+    return fileToDataUrl(file)
   }
 
   const { error } = await supabase.storage

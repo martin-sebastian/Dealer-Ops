@@ -39,6 +39,28 @@ function pageOffsetHeightIn(page: HTMLElement) {
   return Number(page.dataset.heightIn)
 }
 
+/** Keeps a dragged element's origin on the page so it stays selectable. */
+function clampToPage(
+  x: number,
+  y: number,
+  element: LayoutElement,
+  widthIn: number,
+  heightIn: number
+) {
+  const keepX = element.kind === "image" ? element.width : 1.2
+  const keepY = element.kind === "image" ? element.height : 0.35
+  return {
+    x: Math.min(
+      Math.max(0, x),
+      Math.max(0, widthIn - Math.min(keepX, widthIn))
+    ),
+    y: Math.min(
+      Math.max(0, y),
+      Math.max(0, heightIn - Math.min(keepY, heightIn))
+    ),
+  }
+}
+
 /**
  * Renders a template at 1×. Designer mode adds a dotted grid, selection, and
  * drag. Print/preview omit chrome so output matches the stored layout.
@@ -82,17 +104,26 @@ export function PagePreview({
         x = Math.round(x / step) * step
         y = Math.round(y / step) * step
       }
-      onMove?.(element.id, Math.max(0, x), Math.max(0, y))
+      const clamped = clampToPage(
+        x,
+        y,
+        element,
+        template.pageWidthIn,
+        template.pageHeightIn
+      )
+      onMove?.(element.id, clamped.x, clamped.y)
     }
 
-    /** Drops the pointer listeners when the drag ends. */
+    /** Drops the pointer listeners when the drag ends or is cancelled. */
     function onPointerUp() {
       window.removeEventListener("pointermove", onPointerMove)
       window.removeEventListener("pointerup", onPointerUp)
+      window.removeEventListener("pointercancel", onPointerUp)
     }
 
     window.addEventListener("pointermove", onPointerMove)
     window.addEventListener("pointerup", onPointerUp)
+    window.addEventListener("pointercancel", onPointerUp)
   }
 
   /** Places a dragged catalog field onto the page. */
@@ -122,23 +153,23 @@ export function PagePreview({
         width,
         height,
         backgroundImage: [
-          template.backgroundUrl ? `url(${template.backgroundUrl})` : "",
           showGrid
             ? "radial-gradient(circle, color-mix(in oklab, black 28%, transparent) 1px, transparent 1.2px)"
             : "",
+          template.backgroundUrl ? `url(${template.backgroundUrl})` : "",
         ]
           .filter(Boolean)
           .join(", "),
         backgroundSize: template.backgroundUrl
           ? showGrid
-            ? `100% 100%, ${inchesToPx(0.125)}px ${inchesToPx(0.125)}px`
+            ? `${inchesToPx(0.125)}px ${inchesToPx(0.125)}px, 100% 100%`
             : "100% 100%"
           : showGrid
             ? `${inchesToPx(0.125)}px ${inchesToPx(0.125)}px`
             : undefined,
         backgroundRepeat: template.backgroundUrl
           ? showGrid
-            ? "no-repeat, repeat"
+            ? "repeat, no-repeat"
             : "no-repeat"
           : "repeat",
         backgroundPosition: "center",
@@ -165,7 +196,9 @@ export function PagePreview({
                 width: inchesToPx(element.width),
                 height: inchesToPx(element.height),
               }}
-              onPointerDown={(event) => handleElementPointerDown(event, element)}
+              onPointerDown={(event) =>
+                handleElementPointerDown(event, element)
+              }
               onClick={(event) => {
                 event.stopPropagation()
                 onSelect?.(element.id)

@@ -14,11 +14,7 @@ import {
 import { inchesToPx } from "@/data/page-sizes"
 import type { PrintTemplate } from "@/lib/layout"
 import { pageSizeLabel } from "@/lib/layout"
-import {
-  sendToPrinter,
-  usesLetterZoom,
-  type LetterZoom,
-} from "@/lib/print"
+import { sendToPrinter, usesLetterZoom, type LetterZoom } from "@/lib/print"
 
 const LETTER_ZOOMS: { value: LetterZoom; label: string }[] = [
   { value: 1, label: "Full" },
@@ -47,7 +43,7 @@ export function PreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-4xl">
+      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-4xl print:hidden">
         <DialogHeader>
           <DialogTitle>Print preview</DialogTitle>
           <DialogDescription>
