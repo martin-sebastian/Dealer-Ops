@@ -1,6 +1,8 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
 const PRINT_IMAGE_BUCKET = "print-images"
+/** Local data URLs must stay well under the ~5 MB session/localStorage quota. */
+const MAX_LOCAL_IMAGE_BYTES = 1024 * 1024
 
 let client: SupabaseClient | null | undefined
 
@@ -42,6 +44,11 @@ export async function uploadPrintImage(file: File) {
   const path = `${crypto.randomUUID()}.${ext}`
 
   if (!supabase) {
+    if (file.size > MAX_LOCAL_IMAGE_BYTES) {
+      throw new Error(
+        "Image is too large to store locally. Choose a file under 1 MB."
+      )
+    }
     return readFileAsDataUrl(file)
   }
 

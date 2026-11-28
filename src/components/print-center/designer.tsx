@@ -78,7 +78,11 @@ export function Designer() {
 
   /** Keeps the current layout if the user leaves Print Center and comes back. */
   useEffect(() => {
-    sessionStorage.setItem(DRAFT_KEY, JSON.stringify(template))
+    try {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(template))
+    } catch {
+      /* ignore quota errors */
+    }
   }, [template])
 
   /** Patches the current template and clears stale selection if needed. */
