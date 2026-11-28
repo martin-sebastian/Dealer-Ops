@@ -74,7 +74,7 @@ export function AppShell() {
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
-      <SidebarInset className="min-h-svh min-w-0 overflow-hidden">
+      <SidebarInset className="min-h-svh min-w-0 overflow-hidden print:overflow-visible">
         <header className="flex h-12 items-center gap-2 border-b px-3 print:hidden">
           <SidebarTrigger />
           <p className="text-sm font-medium">
@@ -85,7 +85,7 @@ export function AppShell() {
             )?.label ?? "Dealer Ops"}
           </p>
         </header>
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div className="flex min-h-0 flex-1 flex-col print:overflow-visible">
           <Outlet />
         </div>
       </SidebarInset>

@@ -45,9 +45,17 @@ export function PreviewDialog({
   const [letterZoom, setLetterZoom] = useState<LetterZoom>(1)
   const first = templates[0]
 
+  /** Closes the modal first so only `.print-root` is in the print tree. */
+  function handlePrint() {
+    onOpenChange(false)
+    window.setTimeout(() => {
+      sendToPrinter()
+    }, 0)
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-4xl">
+      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden print:hidden sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Print preview</DialogTitle>
           <DialogDescription>
@@ -103,7 +111,7 @@ export function PreviewDialog({
           })}
         </div>
         <DialogFooter>
-          <Button onClick={sendToPrinter}>Send to print</Button>
+          <Button onClick={handlePrint}>Send to print</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -100,6 +100,28 @@ export function pageSizeLabel(template: PrintTemplate) {
   return `${template.pageWidthIn} × ${template.pageHeightIn} in`
 }
 
+/** Clamps one element's origin so a usable slice stays on the page. */
+export function clampPositionToPage(
+  element: LayoutElement,
+  x: number,
+  y: number,
+  widthIn: number,
+  heightIn: number
+) {
+  const keepX = element.kind === "image" ? element.width : 1.2
+  const keepY = element.kind === "image" ? element.height : 0.35
+  return {
+    x: Math.min(
+      Math.max(0, x),
+      Math.max(0, widthIn - Math.min(keepX, widthIn))
+    ),
+    y: Math.min(
+      Math.max(0, y),
+      Math.max(0, heightIn - Math.min(keepY, heightIn))
+    ),
+  }
+}
+
 /** Keeps a usable slice of each element on the page after a size change. */
 export function clampElementsToPage(
   elements: LayoutElement[],
@@ -126,17 +148,14 @@ export function clampElementsToPage(
   }
 
   return elements.map((element) => {
-    const keepX = element.kind === "image" ? element.width : 1.2
-    const keepY = element.kind === "image" ? element.height : 0.35
-    const clampedX = Math.min(
-      Math.max(0, element.x),
-      Math.max(0, widthIn - Math.min(keepX, widthIn))
+    const clamped = clampPositionToPage(
+      element,
+      element.x,
+      element.y,
+      widthIn,
+      heightIn
     )
-    const clampedY = Math.min(
-      Math.max(0, element.y),
-      Math.max(0, heightIn - Math.min(keepY, heightIn))
-    )
-    const slot = stagger(clampedX, clampedY)
+    const slot = stagger(clamped.x, clamped.y)
     if (element.kind === "image") {
       return {
         ...element,

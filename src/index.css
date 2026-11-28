@@ -139,6 +139,43 @@
   #root {
     background: white !important;
     height: auto !important;
+    overflow: visible !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-root,
+  .print-root * {
+    visibility: visible !important;
+  }
+
+  .print-root {
+    display: block !important;
+    position: static !important;
+  }
+
+  [data-slot="sidebar"],
+  [data-slot="sidebar-gap"],
+  [data-slot="sidebar-container"],
+  [data-slot="dialog-overlay"],
+  [data-slot="dialog-content"] {
+    display: none !important;
+    width: 0 !important;
+  }
+
+  [data-slot="sidebar-wrapper"] {
+    display: block !important;
+    min-height: 0 !important;
+  }
+
+  [data-slot="sidebar-inset"] {
+    margin: 0 !important;
+    overflow: visible !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    width: 100% !important;
   }
 
   .print-page {

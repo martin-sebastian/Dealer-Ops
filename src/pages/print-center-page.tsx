@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
  */
 export function PrintCenterPage() {
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden print:overflow-visible">
       <nav className="flex gap-1 border-b px-3 py-2 print:hidden">
         <NavLink
           to="/print-center"

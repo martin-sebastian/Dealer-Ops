@@ -4,7 +4,7 @@ import { FIELD_MIME } from "@/components/print-center/field-pane"
 import { getField } from "@/data/fields"
 import { inchesToPx } from "@/data/page-sizes"
 import type { LayoutElement, PrintTemplate } from "@/lib/layout"
-import { sampleForField } from "@/lib/layout"
+import { clampPositionToPage, sampleForField } from "@/lib/layout"
 import { cn } from "@/lib/utils"
 
 type PagePreviewProps = {
@@ -82,17 +82,26 @@ export function PagePreview({
         x = Math.round(x / step) * step
         y = Math.round(y / step) * step
       }
-      onMove?.(element.id, Math.max(0, x), Math.max(0, y))
+      const clamped = clampPositionToPage(
+        element,
+        x,
+        y,
+        pageOffsetWidthIn(page),
+        pageOffsetHeightIn(page)
+      )
+      onMove?.(element.id, clamped.x, clamped.y)
     }
 
-    /** Drops the pointer listeners when the drag ends. */
+    /** Drops the pointer listeners when the drag ends or is cancelled. */
     function onPointerUp() {
       window.removeEventListener("pointermove", onPointerMove)
       window.removeEventListener("pointerup", onPointerUp)
+      window.removeEventListener("pointercancel", onPointerUp)
     }
 
     window.addEventListener("pointermove", onPointerMove)
     window.addEventListener("pointerup", onPointerUp)
+    window.addEventListener("pointercancel", onPointerUp)
   }
 
   /** Places a dragged catalog field onto the page. */
@@ -122,25 +131,25 @@ export function PagePreview({
         width,
         height,
         backgroundImage: [
-          template.backgroundUrl ? `url(${template.backgroundUrl})` : "",
           showGrid
             ? "radial-gradient(circle, color-mix(in oklab, black 28%, transparent) 1px, transparent 1.2px)"
             : "",
+          template.backgroundUrl ? `url(${template.backgroundUrl})` : "",
         ]
           .filter(Boolean)
           .join(", "),
-        backgroundSize: template.backgroundUrl
-          ? showGrid
-            ? `100% 100%, ${inchesToPx(0.125)}px ${inchesToPx(0.125)}px`
-            : "100% 100%"
-          : showGrid
-            ? `${inchesToPx(0.125)}px ${inchesToPx(0.125)}px`
+        backgroundSize: showGrid
+          ? template.backgroundUrl
+            ? `${inchesToPx(0.125)}px ${inchesToPx(0.125)}px, 100% 100%`
+            : `${inchesToPx(0.125)}px ${inchesToPx(0.125)}px`
+          : template.backgroundUrl
+            ? "100% 100%"
             : undefined,
-        backgroundRepeat: template.backgroundUrl
-          ? showGrid
-            ? "no-repeat, repeat"
-            : "no-repeat"
-          : "repeat",
+        backgroundRepeat: showGrid
+          ? template.backgroundUrl
+            ? "repeat, no-repeat"
+            : "repeat"
+          : "no-repeat",
         backgroundPosition: "center",
       }}
       onClick={() => onSelect?.(null)}
