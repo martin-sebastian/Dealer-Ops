@@ -47,7 +47,8 @@ function loadImageFromUrl(url: string) {
   })
 }
 
-/** Encodes a canvas as JPEG, stepping quality down until it fits storage. */
+/** Encodes a canvas as JPEG, stepping quality down until it fits storage.
+ * Callers must paint an opaque background first; JPEG has no alpha. */
 function canvasToFittingDataUrl(canvas: HTMLCanvasElement) {
   for (const quality of [0.82, 0.64, 0.48]) {
     const dataUrl = canvas.toDataURL("image/jpeg", quality)
@@ -60,7 +61,8 @@ function canvasToFittingDataUrl(canvas: HTMLCanvasElement) {
 
 /**
  * Builds a data URL that fits browser storage. Small files stay as-is;
- * larger photos are resized to letter size and JPEG-compressed.
+ * larger photos are resized to letter size, composited on white, and
+ * JPEG-compressed so transparent pixels do not become black.
  */
 async function localBackgroundDataUrl(file: File) {
   if (file.size > MAX_LOCAL_SOURCE_BYTES) {
@@ -85,6 +87,8 @@ async function localBackgroundDataUrl(file: File) {
     if (!context) {
       throw new Error("Could not process that image.")
     }
+    context.fillStyle = "#fff"
+    context.fillRect(0, 0, canvas.width, canvas.height)
     context.drawImage(image, 0, 0, canvas.width, canvas.height)
     const dataUrl = canvasToFittingDataUrl(canvas)
     if (!dataUrl) {
