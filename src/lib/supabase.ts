@@ -85,6 +85,8 @@ async function localBackgroundDataUrl(file: File) {
     if (!context) {
       throw new Error("Could not process that image.")
     }
+    context.fillStyle = "#ffffff"
+    context.fillRect(0, 0, canvas.width, canvas.height)
     context.drawImage(image, 0, 0, canvas.width, canvas.height)
     const dataUrl = canvasToFittingDataUrl(canvas)
     if (!dataUrl) {
